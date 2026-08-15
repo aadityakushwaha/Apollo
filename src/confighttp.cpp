@@ -37,6 +37,7 @@
 #include "nvhttp.h"
 #include "platform/common.h"
 #include "process.h"
+#include "steam_state.h"
 #include "utility.h"
 #include "uuid.h"
 
@@ -1318,6 +1319,114 @@ namespace confighttp {
   }
 
   /**
+   * @brief List installed Steam games discovered from local appmanifests.
+   * @param response The HTTP response object.
+   * @param request The HTTP request object.
+   *
+   * @api_examples{/api/steam/games| GET| null}
+   */
+  void getSteamGames(resp_https_t response, req_https_t request) {
+    if (!authenticate(response, request)) {
+      return;
+    }
+
+    print_req(request);
+
+    try {
+      send_response(response, steam_state::games());
+    } catch (std::exception &e) {
+      BOOST_LOG(warning) << "GetSteamGames: "sv << e.what();
+      bad_request(response, request, e.what());
+    }
+  }
+
+  /**
+   * @brief Current Steam state: running app plus update/download progress.
+   * @param response The HTTP response object.
+   * @param request The HTTP request object.
+   *
+   * @api_examples{/api/steam/state| GET| null}
+   */
+  void getSteamState(resp_https_t response, req_https_t request) {
+    if (!authenticate(response, request)) {
+      return;
+    }
+
+    print_req(request);
+
+    try {
+      send_response(response, steam_state::state());
+    } catch (std::exception &e) {
+      BOOST_LOG(warning) << "GetSteamState: "sv << e.what();
+      bad_request(response, request, e.what());
+    }
+  }
+
+  /**
+   * @brief Launch a Steam game by appid.
+   * @param response The HTTP response object.
+   * @param request The HTTP request object.
+   *
+   * @api_examples{/api/steam/launch| POST| {"appid": 730}}
+   */
+  void launchSteamApp(resp_https_t response, req_https_t request) {
+    if (!validateContentType(response, request, "application/json") || !authenticate(response, request)) {
+      return;
+    }
+
+    print_req(request);
+
+    try {
+      std::stringstream ss;
+      ss << request->content.rdbuf();
+      nlohmann::json input_tree = nlohmann::json::parse(ss.str());
+      const std::uint64_t appid = input_tree.value("appid", 0ULL);
+      if (appid == 0) {
+        bad_request(response, request, "Missing or invalid appid");
+        return;
+      }
+      nlohmann::json output_tree;
+      output_tree["status"] = steam_state::launch(appid);
+      send_response(response, output_tree);
+    } catch (std::exception &e) {
+      BOOST_LOG(warning) << "LaunchSteamApp: "sv << e.what();
+      bad_request(response, request, e.what());
+    }
+  }
+
+  /**
+   * @brief Queue a Steam update/verify by appid.
+   * @param response The HTTP response object.
+   * @param request The HTTP request object.
+   *
+   * @api_examples{/api/steam/update| POST| {"appid": 730}}
+   */
+  void updateSteamApp(resp_https_t response, req_https_t request) {
+    if (!validateContentType(response, request, "application/json") || !authenticate(response, request)) {
+      return;
+    }
+
+    print_req(request);
+
+    try {
+      std::stringstream ss;
+      ss << request->content.rdbuf();
+      nlohmann::json input_tree = nlohmann::json::parse(ss.str());
+      const std::uint64_t appid = input_tree.value("appid", 0ULL);
+      if (appid == 0) {
+        bad_request(response, request, "Missing or invalid appid");
+        return;
+      }
+      nlohmann::json output_tree;
+      output_tree["status"] = steam_state::update(appid);
+      send_response(response, output_tree);
+    } catch (std::exception &e) {
+      BOOST_LOG(warning) << "UpdateSteamApp: "sv << e.what();
+      bad_request(response, request, e.what());
+    }
+  }
+
+  /**
    * @brief Restart Apollo.
    * @param response The HTTP response object.
    * @param request The HTTP request object.
@@ -1544,6 +1653,10 @@ namespace confighttp {
     server.resource["^/api/config$"]["POST"] = saveConfig;
     server.resource["^/api/configLocale$"]["GET"] = getLocale;
     server.resource["^/api/restart$"]["POST"] = restart;
+    server.resource["^/api/steam/games$"]["GET"] = getSteamGames;
+    server.resource["^/api/steam/state$"]["GET"] = getSteamState;
+    server.resource["^/api/steam/launch$"]["POST"] = launchSteamApp;
+    server.resource["^/api/steam/update$"]["POST"] = updateSteamApp;
     server.resource["^/api/quit$"]["POST"] = quit;
     server.resource["^/api/reset-display-device-persistence$"]["POST"] = resetDisplayDevicePersistence;
     server.resource["^/api/password$"]["POST"] = savePassword;
