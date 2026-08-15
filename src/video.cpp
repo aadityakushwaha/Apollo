@@ -824,14 +824,10 @@ namespace video {
         {"coder"s, &config::video.amd.amd_coder},
         {"enforce_hrd"s, &config::video.amd.amd_enforce_hrd},
       },
-      {
-        // SDR-specific options
-        {"profile"s, [](const config_t &cfg) {
-           if (cfg.profile == 66) return "baseline"s;
-           if (cfg.profile == 77) return "main"s;
-           return "high"s;
-         }},
-      },
+      // SDR-specific options
+      // upstream c71ea0a8 references cfg.profile which config_t never gained;
+      // fall back to the encoder's default profile until upstream adds the field
+      {},
       {},  // HDR-specific options
       {},  // YUV444 SDR-specific options
       {},  // YUV444 HDR-specific options
