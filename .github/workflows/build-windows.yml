@@ -61,7 +61,8 @@ jobs:
 
       - name: Build
         shell: msys2 {0}
-        run: ninja -C build
+        # -j4: uncapped parallelism OOMs cc1plus on boost-heavy TUs
+        run: ninja -C build -j 4
 
       - name: Package installer
         shell: msys2 {0}
