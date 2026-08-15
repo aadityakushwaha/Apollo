@@ -1,0 +1,76 @@
+# Windows build on the self-hosted runner (gaming-pc).
+# Produces the Apollo binary + NSIS installer as artifacts.
+name: Build Windows
+
+on:
+  push:
+    branches:
+      - master
+      - feature/**
+  workflow_dispatch:
+
+concurrency:
+  group: build-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: [self-hosted, apollo]
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ucrt64
+          update: false
+          # inherit lets the msys2 shell see the official Node from setup-node
+          # (docs/building.md: MSYS2's own nodejs package is broken)
+          path-type: inherit
+          install: >-
+            git
+            mingw-w64-ucrt-x86_64-boost
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-cppwinrt
+            mingw-w64-ucrt-x86_64-curl-winssl
+            mingw-w64-ucrt-x86_64-MinHook
+            mingw-w64-ucrt-x86_64-miniupnpc
+            mingw-w64-ucrt-x86_64-nsis
+            mingw-w64-ucrt-x86_64-onevpl
+            mingw-w64-ucrt-x86_64-openssl
+            mingw-w64-ucrt-x86_64-opus
+            mingw-w64-ucrt-x86_64-toolchain
+            mingw-w64-ucrt-x86_64-nlohmann_json
+
+      - name: Configure
+        shell: msys2 {0}
+        run: cmake -B build -G Ninja -S . -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        shell: msys2 {0}
+        run: ninja -C build
+
+      - name: Package installer
+        shell: msys2 {0}
+        run: cd build && cpack -G NSIS
+        continue-on-error: true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: apollo-windows
+          path: |
+            build/sunshine.exe
+            build/apollo.exe
+            build/*.exe
+            build/cpack_artifacts/*
+          if-no-files-found: warn
