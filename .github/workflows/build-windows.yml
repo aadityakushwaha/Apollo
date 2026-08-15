@@ -24,8 +24,8 @@ jobs:
       # Wayland submodules live on gitlab.freedesktop.org (flaky) and are
       # Linux-only — skip them for the Windows build.
       - name: Submodules
-        shell: pwsh
-        run: git -c submodule."third-party/wayland-protocols".update=none -c submodule."third-party/wlr-protocols".update=none submodule update --init --recursive
+        shell: powershell
+        run: git -c 'submodule.third-party/wayland-protocols.update=none' -c 'submodule.third-party/wlr-protocols.update=none' submodule update --init --recursive
 
       - name: Setup node
         uses: actions/setup-node@v4
