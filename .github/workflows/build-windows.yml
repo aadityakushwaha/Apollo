@@ -39,6 +39,9 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: ucrt64
+          # use the MSYS2 installed at C:\msys64 — no per-run download,
+          # pacman package cache persists, mirror flakes stop mattering
+          release: false
           update: false
           # inherit lets the msys2 shell see the official Node from setup-node
           # (docs/building.md: MSYS2's own nodejs package is broken)
