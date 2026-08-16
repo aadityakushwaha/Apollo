@@ -1,6 +1,6 @@
-/* Altagones console theme — desktop sibling of the tvOS PSTheme.
-   One committed dark design (a console dashboard is dark, period);
-   palette mirrors Sources/tvos/Theme.swift exactly. */
+/* Altagones console theme — LOCKED DESIGN (bento + floating dock).
+   Single committed dark look; tokens mirror the tvOS PSTheme.
+   Source of truth: the approved mockup (claude artifact aef8ce0e). */
 
 /* Hide pages while localization is loading */
 [v-cloak] {
@@ -13,23 +13,22 @@
     --alt-bg0: #07080C;
     --alt-bg1: #0C0E14;
     --alt-bg2: #12141C;
-    --alt-surface: #191C26;
     --alt-glass: rgba(255, 255, 255, 0.045);
-    --alt-hairline: rgba(255, 255, 255, 0.08);
+    --alt-hair: rgba(255, 255, 255, 0.08);
     --alt-accent: #2E6BFF;
     --alt-accent2: #4C8DFF;
     --alt-glow: #7DB0FF;
     --alt-text: #F4F6FB;
-    --alt-text-sec: #99A2B2;
+    --alt-sec: #99A2B2;
+    --alt-ter: #5C6470;
     --alt-ok: #34D399;
     --alt-err: #F87171;
     --alt-warn: #FBBF24;
 
-    /* Re-point Bootstrap at the console palette */
     --bs-body-bg: var(--alt-bg1);
     --bs-body-color: var(--alt-text);
-    --bs-secondary-color: var(--alt-text-sec);
-    --bs-border-color: var(--alt-hairline);
+    --bs-secondary-color: var(--alt-sec);
+    --bs-border-color: var(--alt-hair);
     --bs-primary: var(--alt-accent);
     --bs-link-color: var(--alt-glow);
     --bs-link-hover-color: #a8c8ff;
@@ -38,9 +37,7 @@
     --bs-secondary-bg: var(--alt-bg2);
 }
 
-html {
-    color-scheme: dark;
-}
+html { color-scheme: dark; }
 
 body {
     color: var(--alt-text);
@@ -51,64 +48,137 @@ body {
     background-attachment: fixed;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", Roboto, sans-serif;
     letter-spacing: 0.01em;
+    /* room for the floating dock */
+    padding-bottom: 120px;
 }
 
 h1, h2, h3, .h1, .h2, .h3 {
-    font-weight: 700;
-    letter-spacing: -0.01em;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     color: var(--alt-text);
 }
 
-/* ---- Glass cards ---------------------------------------------------- */
+/* ---- Brand row (Navbar.vue renders this; no top bar) ------------------ */
+.topbrand {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 26px 28px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.topbrand .brand-name {
+    font-weight: 800;
+    font-size: 19px;
+    letter-spacing: -0.01em;
+    color: var(--alt-text);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.topbrand .brand-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--alt-accent2), var(--alt-accent));
+    box-shadow: 0 4px 18px rgba(46, 107, 255, 0.45);
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 15px;
+}
+
+/* ---- Floating bottom dock --------------------------------------------- */
+.dock {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 1030;
+    display: flex;
+    gap: 4px;
+    padding: 8px;
+    background: rgba(10, 12, 18, 0.78);
+    -webkit-backdrop-filter: blur(26px) saturate(1.35);
+    backdrop-filter: blur(26px) saturate(1.35);
+    border: 1px solid var(--alt-hair);
+    border-radius: 999px;
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(0, 0, 0, 0.25);
+    max-width: calc(100vw - 24px);
+}
+.dock a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--alt-sec) !important;
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 999px;
+    transition: 0.15s;
+    white-space: nowrap;
+}
+.dock a:hover { color: var(--alt-text) !important; background: rgba(255, 255, 255, 0.07); }
+.dock a.active {
+    color: #fff !important;
+    background: linear-gradient(135deg, var(--alt-accent2), var(--alt-accent));
+    box-shadow: 0 6px 20px rgba(46, 107, 255, 0.4);
+}
+.dock a:focus-visible { outline: 2px solid var(--alt-glow); outline-offset: 2px; }
+@media (max-width: 860px) {
+    .dock a span { display: none; }
+    .dock a { padding: 10px 14px; }
+}
+
+/* ---- Cards become bento tiles ----------------------------------------- */
 .card, .modal-content, .list-group-item, .accordion-item, .dropdown-menu, .toast, .offcanvas {
     background-color: var(--alt-glass);
     -webkit-backdrop-filter: blur(22px) saturate(1.2);
     backdrop-filter: blur(22px) saturate(1.2);
-    border: 1px solid var(--alt-hairline);
+    border: 1px solid var(--alt-hair);
     color: var(--alt-text);
 }
-
 .card {
-    border-radius: 18px;
-    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+    border-radius: 20px;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
+    transition: transform 0.15s ease, border-color 0.15s ease;
     overflow: hidden;
 }
-
+.card:hover { transform: translateY(-2px); border-color: rgba(125, 176, 255, 0.35); }
 .card-header, .card-footer, .modal-header, .modal-footer {
     background-color: rgba(255, 255, 255, 0.03);
-    border-color: var(--alt-hairline);
+    border-color: var(--alt-hair);
 }
-
-.dropdown-menu {
-    background-color: rgba(18, 20, 28, 0.92);
-    border-radius: 14px;
-}
+.dropdown-menu { background-color: rgba(18, 20, 28, 0.92); border-radius: 14px; }
 .dropdown-item { color: var(--alt-text); border-radius: 10px; }
-.dropdown-item:hover, .dropdown-item:focus {
-    background-color: rgba(46, 107, 255, 0.18);
-    color: var(--alt-text);
+.dropdown-item:hover, .dropdown-item:focus { background-color: rgba(46, 107, 255, 0.18); color: var(--alt-text); }
+
+/* Bento grid helper (used as pages migrate to tile layouts) */
+.bento {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(6, 1fr);
+}
+.bento .c2 { grid-column: span 2; }
+.bento .c3 { grid-column: span 3; }
+.bento .c4 { grid-column: span 4; }
+.bento .c6 { grid-column: span 6; }
+@media (max-width: 860px) {
+    .bento { grid-template-columns: 1fr; }
+    .bento .c2, .bento .c3, .bento .c4, .bento .c6 { grid-column: span 1; }
+}
+.eyebrow {
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--alt-ter);
+    margin-bottom: 10px;
 }
 
-/* ---- Navbar: translucent console bar -------------------------------- */
-.navbar {
-    background: rgba(7, 8, 12, 0.72) !important;
-    -webkit-backdrop-filter: blur(24px) saturate(1.3);
-    backdrop-filter: blur(24px) saturate(1.3);
-    border-bottom: 1px solid var(--alt-hairline);
-}
-.navbar .nav-link {
-    color: var(--alt-text-sec);
-    border-radius: 999px;
-    padding: 0.45rem 1.05rem;
-    transition: color 0.15s ease, background-color 0.15s ease;
-}
-.navbar .nav-link:hover { color: var(--alt-text); }
-.navbar .nav-link.active, .navbar .nav-link[aria-current] {
-    color: var(--alt-text);
-    background: rgba(255, 255, 255, 0.08);
-}
-
-/* ---- Buttons: pills with accent glow --------------------------------- */
+/* ---- Buttons: pills with accent glow ----------------------------------- */
 .btn {
     border-radius: 999px;
     padding: 0.5rem 1.35rem;
@@ -117,7 +187,6 @@ h1, h2, h3, .h1, .h2, .h3 {
     transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
 }
 .btn:active { transform: scale(0.97); }
-
 .btn-primary {
     background: linear-gradient(135deg, var(--alt-accent2), var(--alt-accent));
     border: none;
@@ -127,30 +196,28 @@ h1, h2, h3, .h1, .h2, .h3 {
     background: linear-gradient(135deg, #5d98ff, #3a76ff);
     box-shadow: 0 8px 28px rgba(46, 107, 255, 0.5);
 }
-
 .btn-secondary, .btn-outline-secondary, .btn-light {
     background-color: rgba(255, 255, 255, 0.07);
-    border: 1px solid var(--alt-hairline);
+    border: 1px solid var(--alt-hair);
     color: var(--alt-text);
 }
 .btn-secondary:hover, .btn-outline-secondary:hover, .btn-light:hover {
     background-color: rgba(255, 255, 255, 0.13);
     color: var(--alt-text);
-    border-color: var(--alt-hairline);
+    border-color: var(--alt-hair);
 }
-
-.btn-danger { background: var(--alt-err); border: none; color: #1a0505; }
+.btn-danger { background: rgba(248, 113, 113, 0.15); border: 1px solid rgba(248, 113, 113, 0.3); color: var(--alt-err); }
 .btn-success { background: var(--alt-ok); border: none; color: #052013; }
 .btn-warning { background: var(--alt-warn); border: none; color: #201503; }
 
-/* ---- Forms: dark glass inputs, accent focus ring --------------------- */
+/* ---- Forms -------------------------------------------------------------- */
 .form-control, .form-select, textarea.form-control {
     background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--alt-hairline);
-    border-radius: 12px;
+    border: 1px solid var(--alt-hair);
+    border-radius: 11px;
     color: var(--alt-text);
 }
-.form-control::placeholder { color: #5C6470; }
+.form-control::placeholder { color: var(--alt-ter); }
 .form-control:focus, .form-select:focus {
     background-color: rgba(255, 255, 255, 0.07);
     border-color: var(--alt-accent);
@@ -160,7 +227,7 @@ h1, h2, h3, .h1, .h2, .h3 {
 .form-select {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2399A2B2' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 }
-.form-check-input { background-color: rgba(255,255,255,0.1); border-color: var(--alt-hairline); }
+.form-check-input { background-color: rgba(255,255,255,0.1); border-color: var(--alt-hair); }
 .form-check-input:checked {
     background-color: var(--alt-accent);
     border-color: var(--alt-accent);
@@ -168,39 +235,38 @@ h1, h2, h3, .h1, .h2, .h3 {
 }
 .input-group-text {
     background-color: rgba(255, 255, 255, 0.05);
-    border-color: var(--alt-hairline);
-    color: var(--alt-text-sec);
+    border-color: var(--alt-hair);
+    color: var(--alt-sec);
 }
+.form-label { font-size: 12.5px; font-weight: 600; color: var(--alt-sec); }
 
-/* ---- Tables / misc ---------------------------------------------------- */
-.table { --bs-table-bg: transparent; --bs-table-color: var(--alt-text); border-color: var(--alt-hairline); }
-.table > :not(caption) > * > * { border-color: var(--alt-hairline); }
-
-.alert { border-radius: 14px; border: 1px solid var(--alt-hairline); }
+/* ---- Tables / alerts / misc --------------------------------------------- */
+.table { --bs-table-bg: transparent; --bs-table-color: var(--alt-text); border-color: var(--alt-hair); }
+.table > :not(caption) > * > * { border-color: var(--alt-hair); }
+.alert { border-radius: 14px; border: 1px solid var(--alt-hair); }
 .alert-success { background: rgba(52, 211, 153, 0.12); color: var(--alt-ok); }
 .alert-danger { background: rgba(248, 113, 113, 0.12); color: var(--alt-err); }
 .alert-warning { background: rgba(251, 191, 36, 0.12); color: var(--alt-warn); }
 .alert-info { background: rgba(46, 107, 255, 0.12); color: var(--alt-glow); }
-
 .badge { border-radius: 999px; font-weight: 600; }
-
-.nav-tabs { border-color: var(--alt-hairline); }
-.nav-tabs .nav-link { color: var(--alt-text-sec); border: none; border-radius: 999px; margin-right: 6px; }
-.nav-tabs .nav-link.active {
-    background: rgba(255, 255, 255, 0.09);
-    color: var(--alt-text);
-    border: none;
-}
-
+.nav-tabs { border-color: var(--alt-hair); }
+.nav-tabs .nav-link { color: var(--alt-sec); border: none; border-radius: 999px; margin-right: 6px; }
+.nav-tabs .nav-link.active { background: rgba(255, 255, 255, 0.09); color: var(--alt-text); border: none; }
 .progress { background-color: rgba(255, 255, 255, 0.08); border-radius: 999px; }
 .progress-bar { background: linear-gradient(90deg, var(--alt-accent2), var(--alt-accent)); }
+pre {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--alt-hair);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: var(--alt-sec);
+}
 
 ::selection { background: rgba(46, 107, 255, 0.4); }
-
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 999px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
 ::-webkit-scrollbar-track { background: transparent; }
 
-/* The light/dark toggle is vestigial in a single-look console UI */
+/* single committed look — hide the theme toggle */
 .theme-toggle, [data-bs-theme-value] { display: none !important; }
