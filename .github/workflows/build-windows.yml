@@ -62,7 +62,12 @@ jobs:
       # (e.g. power loss) corrupted the esbuild binary inside it
       - name: Heal node_modules
         shell: cmd
-        run: if exist node_modules ( node node_modules\esbuild\bin\esbuild --version || rmdir /s /q node_modules ) else ( exit /b 0 )
+        run: |
+          node node_modules\esbuild\bin\esbuild --version 2>nul && exit /b 0
+          taskkill /f /im esbuild.exe 2>nul
+          rmdir /s /q node_modules 2>nul
+          rmdir /s /q node_modules 2>nul
+          exit /b 0
 
       - name: Configure
         shell: msys2 {0}
