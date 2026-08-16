@@ -38,10 +38,13 @@
 
 <body id="app" v-cloak>
   <Navbar></Navbar>
-  <div class="container">
-    <h1 class="my-4">{{ $t('troubleshooting.troubleshooting') }}</h1>
+  <div class="container bento-page">
+    <header class="page-head">
+      <h1>{{ $t('troubleshooting.troubleshooting') }}</h1>
+      <span class="sub">Everything the host is doing, live</span>
+    </header>
     <!-- Force Close App -->
-    <div class="card p-2 my-4">
+    <div class="card c3 p-4">
       <div class="card-body">
         <h2 id="close_apps">{{ $t('troubleshooting.force_close') }}</h2>
         <br>
@@ -60,7 +63,7 @@
       </div>
     </div>
     <!-- Restart Apollo -->
-    <div class="card p-2 my-4">
+    <div class="card c3 p-4">
       <div class="card-body">
         <h2 id="restart">{{ $t('troubleshooting.restart_apollo') }}</h2>
         <br>
@@ -76,7 +79,7 @@
       </div>
     </div>
     <!-- Quit Apollo -->
-    <div class="card p-2 my-4">
+    <div class="card c3 p-4">
       <div class="card-body">
         <h2 id="quit">{{ $t('troubleshooting.quit_apollo') }}</h2>
         <br>
@@ -95,7 +98,7 @@
       </div>
     </div>
     <!-- Reset persistent display device settings -->
-    <div class="card p-2 my-4" v-if="platform === 'windows'">
+    <div class="card c3 p-4" v-if="platform === 'windows'">
       <div class="card-body">
         <h2 id="dd_reset">{{ $t('troubleshooting.dd_reset') }}</h2>
         <br>
@@ -114,7 +117,7 @@
       </div>
     </div>
     <!-- Logs -->
-    <div class="card p-2 my-4">
+    <div class="card c6 p-4">
       <div class="card-body">
         <h2 id="logs">{{ $t('troubleshooting.logs') }}</h2>
         <br>

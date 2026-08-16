@@ -155,20 +155,36 @@ h1, h2, h3, .h1, .h2, .h3 {
 .dropdown-item { color: var(--alt-text); border-radius: 10px; }
 .dropdown-item:hover, .dropdown-item:focus { background-color: rgba(46, 107, 255, 0.18); color: var(--alt-text); }
 
-/* Bento grid helper (used as pages migrate to tile layouts) */
-.bento {
+/* Bento grid: .bento wrapper or .bento-page applied to a page container */
+.bento, .bento-page {
     display: grid;
     gap: 18px;
     grid-template-columns: repeat(6, 1fr);
+    align-items: start;
 }
-.bento .c2 { grid-column: span 2; }
-.bento .c3 { grid-column: span 3; }
-.bento .c4 { grid-column: span 4; }
-.bento .c6 { grid-column: span 6; }
+.bento-page {
+    max-width: 1120px !important;
+    padding-top: 10px;
+}
+.bento .c2, .bento-page > .c2 { grid-column: span 2; }
+.bento .c3, .bento-page > .c3 { grid-column: span 3; }
+.bento .c4, .bento-page > .c4 { grid-column: span 4; }
+.bento .c6, .bento-page > .c6 { grid-column: span 6; }
 @media (max-width: 860px) {
-    .bento { grid-template-columns: 1fr; }
-    .bento .c2, .bento .c3, .bento .c4, .bento .c6 { grid-column: span 1; }
+    .bento, .bento-page { grid-template-columns: 1fr; }
+    .bento .c2, .bento .c3, .bento .c4, .bento .c6,
+    .bento-page > .c2, .bento-page > .c3, .bento-page > .c4, .bento-page > .c6 { grid-column: span 1; }
 }
+.page-head {
+    grid-column: span 6;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin: 24px 0 6px;
+}
+.page-head h1 { font-size: 32px; margin: 0; }
+.page-head .sub { color: var(--alt-ter); font-size: 14px; }
+.text-sec { color: var(--alt-sec); font-size: 14.5px; line-height: 1.6; }
 .eyebrow {
     font-size: 11.5px;
     font-weight: 700;

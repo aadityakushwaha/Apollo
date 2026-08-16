@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="auto">
+<html lang="en" data-bs-theme="dark">
 
 <head>
   <%- header %>
@@ -7,144 +7,144 @@
 
 <body id="app" v-cloak>
   <Navbar></Navbar>
-  <div id="content" class="container">
-    <h1 class="my-4">{{ $t('index.welcome') }}</h1>
-    <p>{{ $t('index.description') }}</p>
-    <div class="alert alert-danger" v-if="fancyLogs.find(x => x.level === 'Fatal')">
+  <div id="content" class="container bento-page">
+    <header class="page-head">
+      <h1>{{ hostname }}</h1>
+      <span class="sub">Altagones Host<template v-if="version"> · v{{version.version}}</template></span>
+    </header>
+
+    <div class="alert alert-danger c6" v-if="fancyLogs.find(x => x.level === 'Fatal')">
       <div style="line-height: 32px;">
         <i class="fas fa-circle-exclamation" style="font-size: 32px;margin-right: 0.25em;"></i>
         <p v-html="$t('index.startup_errors')"></p>
-        <br>
       </div>
       <ul>
         <li v-for="v in fancyLogs.filter(x => x.level === 'Fatal')">{{v.value}}</li>
       </ul>
       <a class="btn btn-danger" href="./troubleshooting#logs">View Logs</a>
     </div>
-    <!-- Version -->
-    <div class="card p-2 my-4">
-      <div class="card-body" v-if="version">
-        <h2>Version {{version.version}}</h2>
-        <br>
-        <div v-if="loading">
-          {{ $t('index.loading_latest') }}
-        </div>
-        <div class="alert alert-success" v-if="buildVersionIsDirty">
-          {{ $t('index.version_dirty') }} 🌇
-        </div>
-        <div class="alert alert-info" v-if="installedVersionNotStable">
-          {{ $t('index.installed_version_not_stable') }}
-        </div>
-        <div v-else-if="(!preReleaseBuildAvailable || !notifyPreReleases) && !stableBuildAvailable && !buildVersionIsDirty">
-          <div class="alert alert-success">
-            {{ $t('index.version_latest') }}
-          </div>
-        </div>
-        <div v-if="notifyPreReleases && preReleaseBuildAvailable">
-          <div class="alert alert-warning">
-            <div class="d-flex justify-content-between">
-              <div class="my-2">
-                <p>{{ $t('index.new_pre_release') }}</p>
-              </div>
-              <a class="btn btn-success m-1" :href="preReleaseVersion.release.html_url" target="_blank">{{ $t('index.download') }}</a>
-            </div>
-            <pre><b>{{preReleaseVersion.release.name}}</b></pre>
-            <pre>{{preReleaseVersion.release.body}}</pre>
-          </div>
-        </div>
-        <div v-if="stableBuildAvailable">
-          <div class="alert alert-warning">
-            <div class="d-flex justify-content-between">
-              <div class="my-2">
-                <p>{{ $t('index.new_stable') }}</p>
-              </div>
-              <a class="btn btn-success m-1" :href="githubVersion.release.html_url" target="_blank">{{ $t('index.download') }}</a>
-            </div>
-            <h3>{{githubVersion.release.name}}</h3>
-            <pre>{{githubVersion.release.body}}</pre>
-          </div>
-        </div>
+
+    <!-- Status hero -->
+    <div class="card c4 p-4" style="min-height:180px; display:flex; flex-direction:column;">
+      <div class="eyebrow">Host</div>
+      <div class="d-flex align-items-center gap-3">
+        <span style="font-size:26px;font-weight:800;letter-spacing:-.01em">Ready to stream</span>
+        <span class="chip-ok">Running</span>
+      </div>
+      <div class="d-flex gap-5 mt-auto pt-3">
+        <div><b class="stat-v">{{ games.length || '—' }}</b><span class="stat-s">Games</span></div>
+        <div><b class="stat-v">{{ runningName || 'Idle' }}</b><span class="stat-s">Now playing</span></div>
+        <div><b class="stat-v">{{ platform }}</b><span class="stat-s">Platform</span></div>
       </div>
     </div>
-    <!-- Resources -->
-    <div class="my-4">
+
+    <!-- Pair tile -->
+    <div class="card c2 p-4 d-flex flex-column" style="min-height:180px">
+      <div class="eyebrow">Pair a device</div>
+      <p class="text-sec">Streaming and the game library link with a single PIN from your TV.</p>
+      <a class="btn btn-primary mt-auto align-self-start" href="./pin">Open pairing</a>
+    </div>
+
+    <!-- Library -->
+    <div class="card c4 p-4" v-if="games.length">
+      <div class="eyebrow d-flex justify-content-between align-items-center">
+        <span>Library · {{ games.length }} games</span>
+        <span style="letter-spacing:0;text-transform:none;font-weight:500">synced from Steam</span>
+      </div>
+      <div class="home-app" v-for="g in games.slice(0, 6)">
+        <div class="home-art">{{ initials(g.name) }}</div>
+        <div style="min-width:0">
+          <div class="home-name">{{ g.name }}</div>
+          <div class="home-meta">{{ sizeText(g.size_on_disk) }}<template v-if="updateFor(g.id)"> · downloading {{ updateFor(g.id).pct }}%</template></div>
+        </div>
+        <div class="ms-auto"></div>
+        <span v-if="running === g.id" class="chip-ok">Running</span>
+        <div v-else-if="updateFor(g.id)" class="home-progress"><i :style="{width: updateFor(g.id).pct + '%'}"></i></div>
+      </div>
+    </div>
+
+    <!-- Devices -->
+    <div class="c2">
       <Client-Card></Client-Card>
-      <Resource-Card></Resource-Card>
     </div>
   </div>
 </body>
+
+<style>
+.chip-ok { display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:600; padding:4px 12px; border-radius:999px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.08); color:#34D399; }
+.chip-ok::before { content:""; width:7px; height:7px; border-radius:50%; background:#34D399; box-shadow:0 0 8px #34D399; }
+.stat-v { display:block; font-size:18px; font-weight:700; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.stat-s { font-size:12px; color:#5C6470; }
+.home-app { display:flex; align-items:center; gap:14px; padding:10px 2px; border-bottom:1px solid rgba(255,255,255,.08); }
+.home-app:last-child { border-bottom:none; }
+.home-art { width:38px; height:52px; border-radius:7px; background:linear-gradient(160deg,#12141C,#1d2333); border:1px solid rgba(255,255,255,.08); display:grid; place-items:center; color:#5C6470; font-size:10.5px; font-weight:700; flex:none; }
+.home-name { font-weight:600; font-size:14.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.home-meta { font-size:12px; color:#5C6470; }
+.home-progress { height:6px; border-radius:999px; background:rgba(255,255,255,.08); width:110px; overflow:hidden; flex:none; }
+.home-progress i { display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#4C8DFF,#2E6BFF); }
+</style>
 
 <script type="module">
   import { createApp } from 'vue'
   import { initApp } from './init'
   import Navbar from './Navbar.vue'
   import ClientCard from './ClientCard.vue'
-  import ResourceCard from './ResourceCard.vue'
   import ApolloVersion from './apollo_version'
 
   console.log("Altagones ready")
   let app = createApp({
     components: {
       Navbar,
-      ClientCard,
-      ResourceCard
+      ClientCard
     },
     data() {
       return {
         version: null,
-        githubVersion: null,
-        notifyPreReleases: false,
-        preReleaseVersion: null,
-        loading: true,
+        hostname: 'Altagones',
+        platform: '',
         logs: null,
+        games: [],
+        running: 0,
+        updates: [],
       }
     },
     async created() {
       try {
         let config = await fetch("./api/config").then((r) => r.json());
-        this.notifyPreReleases = config.notify_pre_releases;
         this.version = new ApolloVersion(null, config.version);
-        console.log("Version: ", this.version.version)
-        this.githubVersion = null;  // Altagones ships its own updates — never offer upstream Apollo installers
-        console.log("GitHub Version: ", this.githubVersion.version)
-        if (this.githubVersion) {
-          this.preReleaseVersion = new ApolloVersion((await fetch("https://api.github.com/repos/ClassicOldSong/Apollo/releases").then((r) => r.json())).find(release => release.prerelease), null);
-          console.log("Pre-Release Version: ", this.preReleaseVersion.version)
-        }
-      } catch (e) {
-        console.error(e);
-      }
+        this.platform = config.platform === 'windows' ? 'Windows' : config.platform;
+        if (config.sunshine_name) this.hostname = config.sunshine_name;
+      } catch (e) { console.error(e); }
+      try {
+        let g = await fetch("./api/steam/games").then(r => r.json());
+        this.games = g.games || [];
+      } catch (e) { console.error(e); }
+      try {
+        let s = await fetch("./api/steam/state").then(r => r.json());
+        this.running = s.running || 0;
+        this.updates = s.updates || [];
+      } catch (e) { console.error(e); }
       try {
         this.logs = (await fetch("./api/logs").then(r => r.text()))
-      } catch (e) {
-        console.error(e);
-      }
-      this.loading = false;
+      } catch (e) { console.error(e); }
+    },
+    methods: {
+      initials(name) {
+        return name.split(/\s+/).map(w => w[0]).join("").slice(0, 3).toUpperCase();
+      },
+      sizeText(bytes) {
+        if (!bytes) return "";
+        return (bytes / 1073741824).toFixed(0) + " GB";
+      },
+      updateFor(id) {
+        return this.updates.find(u => u.id === id);
+      },
     },
     computed: {
-      installedVersionNotStable() {
-        if (!this.githubVersion || !this.version) {
-          return false;
-        }
-        return this.version.isGreater(this.githubVersion);
+      runningName() {
+        const g = this.games.find(g => g.id === this.running);
+        return g ? g.name : null;
       },
-      stableBuildAvailable() {
-        if (!this.githubVersion || !this.version) {
-          return false;
-        }
-        return this.githubVersion.isGreater(this.version);
-      },
-      preReleaseBuildAvailable() {
-        if (!this.preReleaseVersion || !this.githubVersion || !this.version) {
-          return false;
-        }
-        return this.preReleaseVersion.isGreater(this.version, true) && this.preReleaseVersion.isGreater(this.githubVersion, true);
-      },
-      buildVersionIsDirty() {
-        return this.version.version?.split(".").length === 5 &&
-          this.version.version.indexOf("dirty") !== -1
-      },
-      /** Parse the text errors, calculating the text, the timestamp and the level */
       fancyLogs() {
         if (!this.logs) return [];
         let regex = /(\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}]):\s/g;
