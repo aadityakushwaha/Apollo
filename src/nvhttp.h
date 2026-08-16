@@ -195,6 +195,13 @@ namespace nvhttp {
    */
   bool pin(std::string pin, std::string name);
 
+  /**
+   * @brief Validate a Web-API token minted during pairing (X-Api-Token).
+   * @param token The plaintext token presented by the client.
+   * @return True if it matches a paired client's stored token hash.
+   */
+  bool authenticate_api_token(const std::string &token);
+
   std::string request_otp(const std::string& passphrase, const std::string& deviceName);
 
   /**

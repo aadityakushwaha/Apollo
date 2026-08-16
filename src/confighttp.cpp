@@ -214,6 +214,23 @@ namespace confighttp {
   }
 
   /**
+   * @brief Authenticate game/app API calls: a paired client's X-Api-Token
+   *        (minted during Moonlight pairing) or the regular web session.
+   *        Deliberately NOT used for config/password/credential endpoints —
+   *        the token's scope is the game surface only.
+   */
+  bool authenticateGameApi(resp_https_t response, req_https_t request) {
+    if (!checkIPOrigin(response, request)) {
+      return false;
+    }
+    auto tokenHdr = request->header.find("x-api-token");
+    if (tokenHdr != request->header.end() && nvhttp::authenticate_api_token(tokenHdr->second)) {
+      return true;
+    }
+    return authenticate(response, request);
+  }
+
+  /**
    * @brief Send a 404 Not Found response.
    * @param response The HTTP response object.
    * @param request The HTTP request object.
@@ -571,7 +588,7 @@ namespace confighttp {
    * @api_examples{/api/apps| GET| null}
    */
   void getApps(resp_https_t response, req_https_t request) {
-    if (!authenticate(response, request)) {
+    if (!authenticateGameApi(response, request)) {
       return;
     }
 
@@ -1326,7 +1343,7 @@ namespace confighttp {
    * @api_examples{/api/steam/games| GET| null}
    */
   void getSteamGames(resp_https_t response, req_https_t request) {
-    if (!authenticate(response, request)) {
+    if (!authenticateGameApi(response, request)) {
       return;
     }
 
@@ -1348,7 +1365,7 @@ namespace confighttp {
    * @api_examples{/api/steam/state| GET| null}
    */
   void getSteamState(resp_https_t response, req_https_t request) {
-    if (!authenticate(response, request)) {
+    if (!authenticateGameApi(response, request)) {
       return;
     }
 
@@ -1370,7 +1387,7 @@ namespace confighttp {
    * @api_examples{/api/steam/launch| POST| {"appid": 730}}
    */
   void launchSteamApp(resp_https_t response, req_https_t request) {
-    if (!validateContentType(response, request, "application/json") || !authenticate(response, request)) {
+    if (!validateContentType(response, request, "application/json") || !authenticateGameApi(response, request)) {
       return;
     }
 
@@ -1402,7 +1419,7 @@ namespace confighttp {
    * @api_examples{/api/steam/update| POST| {"appid": 730}}
    */
   void updateSteamApp(resp_https_t response, req_https_t request) {
-    if (!validateContentType(response, request, "application/json") || !authenticate(response, request)) {
+    if (!validateContentType(response, request, "application/json") || !authenticateGameApi(response, request)) {
       return;
     }
 

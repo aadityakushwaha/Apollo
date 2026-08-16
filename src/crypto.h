@@ -100,6 +100,7 @@ namespace crypto {
     std::string name;
     std::string uuid;
     std::string cert;
+    std::string api_token;  // minted at pairing; grants Web-API access (X-Api-Token)
     std::string display_mode;
     std::list<command_entry_t> do_cmds;
     std::list<command_entry_t> undo_cmds;

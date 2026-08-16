@@ -247,6 +247,7 @@ namespace nvhttp {
         named_cert_node["name"] = final_name;
         named_cert_node["cert"] = named_cert_p->cert;
         named_cert_node["uuid"] = named_cert_p->uuid;
+        named_cert_node["api_token"] = named_cert_p->api_token;   // salted hash, never plaintext
         named_cert_node["display_mode"] = named_cert_p->display_mode;
         named_cert_node["perm"] = static_cast<uint32_t>(named_cert_p->perm);
         named_cert_node["enable_legacy_ordering"] = named_cert_p->enable_legacy_ordering;
@@ -344,6 +345,7 @@ namespace nvhttp {
         named_cert_p->name = el.value("name", "");
         named_cert_p->cert = el.value("cert", "");
         named_cert_p->uuid = el.value("uuid", "");
+        named_cert_p->api_token = el.value("api_token", "");
         named_cert_p->display_mode = el.value("display_mode", "");
         named_cert_p->perm = (PERM)(util::get_non_string_json_value<uint32_t>(el, "perm", (uint32_t)PERM::_all)) & PERM::_all;
         named_cert_p->enable_legacy_ordering = el.value("enable_legacy_ordering", true);
@@ -363,6 +365,19 @@ namespace nvhttp {
     }
 
     client_root = client;
+  }
+
+  bool authenticate_api_token(const std::string &token) {
+    if (token.empty()) {
+      return false;
+    }
+    auto hashed = util::hex(crypto::hash(token + config::sunshine.salt)).to_string();
+    for (auto &named_cert_p : client_root.named_devices) {
+      if (!named_cert_p->api_token.empty() && named_cert_p->api_token == hashed) {
+        return true;
+      }
+    }
+    return false;
   }
 
   void add_authorized_client(const p_named_cert_t& named_cert_p) {
@@ -801,6 +816,18 @@ namespace nvhttp {
       } else if (it->second == "pairchallenge"sv) {
         tree.put("root.paired", 1);
         tree.put("root.<xmlattr>.status_code", 200);
+        // Mint a Web-API token for this client. Only on the HTTPS phase: the
+        // client cert is TLS-verified and the response is encrypted, so the
+        // plaintext token is delivered exactly once; only a salted hash is
+        // persisted server-side.
+        if constexpr (std::is_same_v<T, SunshineHTTPS>) {
+          if (auto named_cert_p = (crypto::named_cert_t *) request->userp.get()) {
+            auto token = crypto::rand_alphabet(32);
+            named_cert_p->api_token = util::hex(crypto::hash(token + config::sunshine.salt)).to_string();
+            save_state();
+            tree.put("root.apitoken", token);
+          }
+        }
         return;
       }
     }
