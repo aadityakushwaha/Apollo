@@ -72,6 +72,15 @@ jobs:
           rmdir /s /q node_modules 2>nul
           exit /b 0
 
+      # clean:false keeps build/ — wipe it if its CMake cache points at a
+      # toolchain that no longer exists (e.g. the old per-run temp MSYS2)
+      - name: Heal stale CMake cache
+        shell: cmd
+        run: |
+          if not exist build\CMakeCache.txt exit /b 0
+          findstr /C:"_temp/msys64" build\CMakeCache.txt >nul 2>nul && rmdir /s /q build
+          exit /b 0
+
       - name: Configure
         shell: msys2 {0}
         run: cmake -B build -G Ninja -S . -DCMAKE_BUILD_TYPE=Release
