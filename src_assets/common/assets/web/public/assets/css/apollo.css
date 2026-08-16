@@ -1,16 +1,206 @@
+/* Altagones console theme — desktop sibling of the tvOS PSTheme.
+   One committed dark design (a console dashboard is dark, period);
+   palette mirrors Sources/tvos/Theme.swift exactly. */
+
 /* Hide pages while localization is loading */
 [v-cloak] {
     display: none;
 }
 
-[data-bs-theme=dark] .element {
-    color: var(--bs-primary-text-emphasis);
-    background-color: var(--bs-primary-bg-subtle);
+:root,
+[data-bs-theme=light],
+[data-bs-theme=dark] {
+    --alt-bg0: #07080C;
+    --alt-bg1: #0C0E14;
+    --alt-bg2: #12141C;
+    --alt-surface: #191C26;
+    --alt-glass: rgba(255, 255, 255, 0.045);
+    --alt-hairline: rgba(255, 255, 255, 0.08);
+    --alt-accent: #2E6BFF;
+    --alt-accent2: #4C8DFF;
+    --alt-glow: #7DB0FF;
+    --alt-text: #F4F6FB;
+    --alt-text-sec: #99A2B2;
+    --alt-ok: #34D399;
+    --alt-err: #F87171;
+    --alt-warn: #FBBF24;
+
+    /* Re-point Bootstrap at the console palette */
+    --bs-body-bg: var(--alt-bg1);
+    --bs-body-color: var(--alt-text);
+    --bs-secondary-color: var(--alt-text-sec);
+    --bs-border-color: var(--alt-hairline);
+    --bs-primary: var(--alt-accent);
+    --bs-link-color: var(--alt-glow);
+    --bs-link-hover-color: #a8c8ff;
+    --bs-emphasis-color: var(--alt-text);
+    --bs-tertiary-bg: var(--alt-bg2);
+    --bs-secondary-bg: var(--alt-bg2);
 }
 
-@media (prefers-color-scheme: dark) {
-    .element {
-        color: var(--bs-primary-text-emphasis);
-        background-color: var(--bs-primary-bg-subtle);
-    }
+html {
+    color-scheme: dark;
 }
+
+body {
+    color: var(--alt-text);
+    background:
+        radial-gradient(1100px 700px at 88% -10%, rgba(46, 107, 255, 0.16), transparent 60%),
+        radial-gradient(900px 600px at -10% 110%, rgba(76, 141, 255, 0.07), transparent 55%),
+        linear-gradient(180deg, var(--alt-bg0), var(--alt-bg1) 45%, var(--alt-bg0));
+    background-attachment: fixed;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", Roboto, sans-serif;
+    letter-spacing: 0.01em;
+}
+
+h1, h2, h3, .h1, .h2, .h3 {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--alt-text);
+}
+
+/* ---- Glass cards ---------------------------------------------------- */
+.card, .modal-content, .list-group-item, .accordion-item, .dropdown-menu, .toast, .offcanvas {
+    background-color: var(--alt-glass);
+    -webkit-backdrop-filter: blur(22px) saturate(1.2);
+    backdrop-filter: blur(22px) saturate(1.2);
+    border: 1px solid var(--alt-hairline);
+    color: var(--alt-text);
+}
+
+.card {
+    border-radius: 18px;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+}
+
+.card-header, .card-footer, .modal-header, .modal-footer {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: var(--alt-hairline);
+}
+
+.dropdown-menu {
+    background-color: rgba(18, 20, 28, 0.92);
+    border-radius: 14px;
+}
+.dropdown-item { color: var(--alt-text); border-radius: 10px; }
+.dropdown-item:hover, .dropdown-item:focus {
+    background-color: rgba(46, 107, 255, 0.18);
+    color: var(--alt-text);
+}
+
+/* ---- Navbar: translucent console bar -------------------------------- */
+.navbar {
+    background: rgba(7, 8, 12, 0.72) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(1.3);
+    backdrop-filter: blur(24px) saturate(1.3);
+    border-bottom: 1px solid var(--alt-hairline);
+}
+.navbar .nav-link {
+    color: var(--alt-text-sec);
+    border-radius: 999px;
+    padding: 0.45rem 1.05rem;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+.navbar .nav-link:hover { color: var(--alt-text); }
+.navbar .nav-link.active, .navbar .nav-link[aria-current] {
+    color: var(--alt-text);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* ---- Buttons: pills with accent glow --------------------------------- */
+.btn {
+    border-radius: 999px;
+    padding: 0.5rem 1.35rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
+}
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--alt-accent2), var(--alt-accent));
+    border: none;
+    box-shadow: 0 6px 22px rgba(46, 107, 255, 0.35);
+}
+.btn-primary:hover, .btn-primary:focus {
+    background: linear-gradient(135deg, #5d98ff, #3a76ff);
+    box-shadow: 0 8px 28px rgba(46, 107, 255, 0.5);
+}
+
+.btn-secondary, .btn-outline-secondary, .btn-light {
+    background-color: rgba(255, 255, 255, 0.07);
+    border: 1px solid var(--alt-hairline);
+    color: var(--alt-text);
+}
+.btn-secondary:hover, .btn-outline-secondary:hover, .btn-light:hover {
+    background-color: rgba(255, 255, 255, 0.13);
+    color: var(--alt-text);
+    border-color: var(--alt-hairline);
+}
+
+.btn-danger { background: var(--alt-err); border: none; color: #1a0505; }
+.btn-success { background: var(--alt-ok); border: none; color: #052013; }
+.btn-warning { background: var(--alt-warn); border: none; color: #201503; }
+
+/* ---- Forms: dark glass inputs, accent focus ring --------------------- */
+.form-control, .form-select, textarea.form-control {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--alt-hairline);
+    border-radius: 12px;
+    color: var(--alt-text);
+}
+.form-control::placeholder { color: #5C6470; }
+.form-control:focus, .form-select:focus {
+    background-color: rgba(255, 255, 255, 0.07);
+    border-color: var(--alt-accent);
+    box-shadow: 0 0 0 0.25rem rgba(46, 107, 255, 0.22);
+    color: var(--alt-text);
+}
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2399A2B2' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+.form-check-input { background-color: rgba(255,255,255,0.1); border-color: var(--alt-hairline); }
+.form-check-input:checked {
+    background-color: var(--alt-accent);
+    border-color: var(--alt-accent);
+    box-shadow: 0 0 12px rgba(46, 107, 255, 0.5);
+}
+.input-group-text {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: var(--alt-hairline);
+    color: var(--alt-text-sec);
+}
+
+/* ---- Tables / misc ---------------------------------------------------- */
+.table { --bs-table-bg: transparent; --bs-table-color: var(--alt-text); border-color: var(--alt-hairline); }
+.table > :not(caption) > * > * { border-color: var(--alt-hairline); }
+
+.alert { border-radius: 14px; border: 1px solid var(--alt-hairline); }
+.alert-success { background: rgba(52, 211, 153, 0.12); color: var(--alt-ok); }
+.alert-danger { background: rgba(248, 113, 113, 0.12); color: var(--alt-err); }
+.alert-warning { background: rgba(251, 191, 36, 0.12); color: var(--alt-warn); }
+.alert-info { background: rgba(46, 107, 255, 0.12); color: var(--alt-glow); }
+
+.badge { border-radius: 999px; font-weight: 600; }
+
+.nav-tabs { border-color: var(--alt-hairline); }
+.nav-tabs .nav-link { color: var(--alt-text-sec); border: none; border-radius: 999px; margin-right: 6px; }
+.nav-tabs .nav-link.active {
+    background: rgba(255, 255, 255, 0.09);
+    color: var(--alt-text);
+    border: none;
+}
+
+.progress { background-color: rgba(255, 255, 255, 0.08); border-radius: 999px; }
+.progress-bar { background: linear-gradient(90deg, var(--alt-accent2), var(--alt-accent)); }
+
+::selection { background: rgba(46, 107, 255, 0.4); }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* The light/dark toggle is vestigial in a single-look console UI */
+.theme-toggle, [data-bs-theme-value] { display: none !important; }
