@@ -468,7 +468,7 @@
     "save_password": "Remember Password"
   },
   "index": {
-    "description": "Apollo is a self-hosted game stream host for Moonlight.",
+    "description": "Altagones by Altacee — your PC games, on your TV, like a console.",
     "download": "Download",
     "installed_version_not_stable": "You are running a pre-release version of Apollo. You may experience bugs or other issues. Please report any issues you encounter. Thank you for helping to make Apollo a better software!",
     "loading_latest": "Loading latest release...",
@@ -477,7 +477,7 @@
     "startup_errors": "<b>Attention!</b> Apollo detected these errors during startup. We <b>STRONGLY RECOMMEND</b> fixing them before streaming.",
     "version_dirty": "Thank you for helping to make Apollo a better software!",
     "version_latest": "You are running the latest version of Apollo",
-    "welcome": "Hello, Apollo!"
+    "welcome": "Welcome to Altagones"
   },
   "navbar": {
     "applications": "Applications",

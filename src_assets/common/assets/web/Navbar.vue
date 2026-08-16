@@ -54,30 +54,36 @@ export default {
 
 <style>
 .navbar-background {
-  background-color: #ffc400
+  background: rgba(7, 8, 12, 0.72);
+  -webkit-backdrop-filter: blur(24px) saturate(1.3);
+  backdrop-filter: blur(24px) saturate(1.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .header .nav-link {
-  color: rgba(0, 0, 0, .65) !important;
+  color: #99A2B2 !important;
+  border-radius: 999px;
+  padding: 0.45rem 1.05rem;
 }
 
 .header .nav-link.active {
-  color: rgb(0, 0, 0) !important;
+  color: #F4F6FB !important;
+  background: rgba(255, 255, 255, 0.08);
   font-weight: 500;
 }
 
 .header .nav-link:hover {
-  color: rgb(0, 0, 0) !important;
+  color: #F4F6FB !important;
   font-weight: 500;
 }
 
 .header .navbar-toggler {
-  color: rgba(var(--bs-dark-rgb), .65) !important;
-  border: var(--bs-border-width) solid rgba(var(--bs-dark-rgb), 0.15) !important;
+  color: rgba(255, 255, 255, .65) !important;
+  border: var(--bs-border-width) solid rgba(255, 255, 255, 0.15) !important;
 }
 
 .header .navbar-toggler-icon {
-  --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2833, 37, 41, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+  --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28244, 246, 251, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
 }
 
 .form-control::placeholder {
