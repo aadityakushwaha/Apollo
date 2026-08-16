@@ -58,6 +58,12 @@ jobs:
             mingw-w64-ucrt-x86_64-toolchain
             mingw-w64-ucrt-x86_64-nlohmann_json
 
+      # clean:false keeps node_modules between runs — heal it if a crash
+      # (e.g. power loss) corrupted the esbuild binary inside it
+      - name: Heal node_modules
+        shell: cmd
+        run: if exist node_modules ( node node_modules\esbuild\bin\esbuild --version || rmdir /s /q node_modules ) else ( exit /b 0 )
+
       - name: Configure
         shell: msys2 {0}
         run: cmake -B build -G Ninja -S . -DCMAKE_BUILD_TYPE=Release
