@@ -7,18 +7,26 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <regex>
 #include <sstream>
 #include <string>
+#include <system_error>
 #include <unordered_map>
 #include <vector>
 
 #include "logging.h"
+#include "platform/common.h"
 
 #ifdef _WIN32
   #include <windows.h>
 
-  #include <shellapi.h>
+// User-session helpers from platform/windows/misc.cpp (no public header).
+namespace platf {
+  HANDLE retrieve_users_token(bool elevated);
+  std::error_code impersonate_current_user(HANDLE user_token, std::function<void()> callback);
+  bool is_running_as_system();
+}  // namespace platf
 #endif
 
 namespace fs = std::filesystem;
@@ -146,6 +154,23 @@ namespace steam_state {
 #ifdef _WIN32
       DWORD appid = 0;
       DWORD size = sizeof(appid);
+      if (platf::is_running_as_system()) {
+        // Service context: HKCU is SYSTEM's hive, where Steam never writes.
+        // Read the console user's hive via an impersonation token instead.
+        HANDLE token = platf::retrieve_users_token(false);
+        if (!token) {
+          return 0;
+        }
+        platf::impersonate_current_user(token, [&]() {
+          HKEY hkcu = nullptr;
+          if (RegOpenCurrentUser(KEY_READ, &hkcu) == ERROR_SUCCESS) {
+            RegGetValueA(hkcu, "Software\\Valve\\Steam", "RunningAppID", RRF_RT_REG_DWORD, nullptr, &appid, &size);
+            RegCloseKey(hkcu);
+          }
+        });
+        CloseHandle(token);
+        return appid;
+      }
       if (RegGetValueA(HKEY_CURRENT_USER, "Software\\Valve\\Steam", "RunningAppID", RRF_RT_REG_DWORD, nullptr, &appid, &size) == ERROR_SUCCESS) {
         return appid;
       }
@@ -153,17 +178,6 @@ namespace steam_state {
       // ponytail: no per-platform process scan; Windows registry covers the
       // shipped host. Add scanning if Linux/macOS hosts ever need it.
       return 0;
-    }
-
-    bool open_steam_url(const std::string &url) {
-#ifdef _WIN32
-      auto result = reinterpret_cast<INT_PTR>(ShellExecuteA(nullptr, "open", url.c_str(), nullptr, nullptr, SW_SHOWNORMAL));
-      return result > 32;
-#elif defined(__APPLE__)
-      return std::system(("open \"" + url + "\"").c_str()) == 0;
-#else
-      return std::system(("xdg-open \"" + url + "\"").c_str()) == 0;
-#endif
     }
 
   }  // namespace
@@ -208,14 +222,18 @@ namespace steam_state {
     return out;
   }
 
+  // platf::open_url launches in the console user's session even when we run
+  // as the service (raw ShellExecute would fire in session 0 and go nowhere).
   bool launch(std::uint64_t appid) {
     BOOST_LOG(info) << "steam_state: launching appid " << appid;
-    return open_steam_url("steam://rungameid/" + std::to_string(appid));
+    platf::open_url("steam://rungameid/" + std::to_string(appid));
+    return true;
   }
 
   bool update(std::uint64_t appid) {
     BOOST_LOG(info) << "steam_state: validating appid " << appid;
-    return open_steam_url("steam://validate/" + std::to_string(appid));
+    platf::open_url("steam://validate/" + std::to_string(appid));
+    return true;
   }
 
 }  // namespace steam_state
